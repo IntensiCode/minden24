@@ -1,0 +1,25 @@
+import 'package:flame/components.dart';
+
+import '../core/core.dart';
+import 'draggable_card.dart';
+import 'minden_game.dart';
+
+class AnimateToTarget with Message {
+  AnimateToTarget(this.batch, this.target, this.on_complete);
+
+  final List<DraggableCardComponent> batch;
+  final TargetStack target;
+  final void Function() on_complete;
+}
+
+class FindDragTarget with Message {
+  FindDragTarget({
+    required this.at,
+    required this.not_in,
+    required this.when_found,
+  });
+
+  final Vector2 at;
+  final SourceStack not_in;
+  final void Function(TargetStack stack) when_found;
+}

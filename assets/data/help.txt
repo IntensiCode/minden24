@@ -1,0 +1,9 @@
+This card game derived from "Patience" is played with three card sets. Each set consists of 8 cards: Ace and 7 to King.
+---
+The upper and left edge is for the 12 aces, on which you have to stack cards in sequence of their numbers, which must
+exactly match in suit, too. If all cards have correctly been stacked on the aces, i.e. all the uppermost cards show a
+King, the game is won.
+---
+The row of eight cards on the bottom edge is meant for interim placement of cards, i.e. if you are unable to find a
+matching card for any of the 12 decks. Here you have to lay the cards in the opposite sequence (King -> 7), in which
+suits must be inverse, too. E.g. if you have a King of Hearts, you can only lay a Queen of Clubs or a Queen of Spades.

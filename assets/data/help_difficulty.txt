@@ -1,0 +1,5 @@
+Difficulty settings "Easy" to "Very Hard" change the initial stacking area size.
+
+Independent of that, if "Easy Shuffle" is "ON", the game is more likely to be completable.
+
+Find the right combination of difficulty and shuffle mode to make the game enjoyable to you!
