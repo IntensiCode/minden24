@@ -13,6 +13,7 @@ Playable version: https://intensicode.github.io/minden24/
 
 ### To Do
 
+- [ ] fix kin set spacing
 - [ ] title screen? or just popup how-to-play dialog?
 - [ ] show how-to-play dialog initially if no title screen
 

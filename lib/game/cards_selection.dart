@@ -22,6 +22,9 @@ enum CardSet {
   cards_clean(corner_radius: 6),
   cards_kin(corner_radius: 2),
   cards_lazy(corner_radius: 3),
+  cards_unknown(corner_radius: 2),
+  cards_fantasy(corner_radius: 2),
+  cards_glennorous(corner_radius: 2),
   ;
 
   final double corner_radius;
@@ -30,7 +33,7 @@ enum CardSet {
 }
 
 class CardsSelection extends Component with AutoDispose {
-  static final _dialog_size = Vector2(320, 200);
+  static final _dialog_size = Vector2(320, 256);
 
   late final SpriteSheet _menu_entry;
 
@@ -57,6 +60,9 @@ class CardsSelection extends Component with AutoDispose {
       CardSet.cards_clean => await sheetIWH('$which.png', 128, 178, spacing: 0, margin: 0),
       CardSet.cards_kin => await sheetIWH('$which.png', 39, 54, spacing: 0, margin: 0),
       CardSet.cards_lazy => await sheetIWH('$which.png', 102, 144, spacing: 0, margin: 0),
+      CardSet.cards_unknown => await sheetIWH('$which.png', 62, 84, spacing: 0, margin: 0),
+      CardSet.cards_fantasy => await sheetIWH('$which.png', 96, 144, spacing: 0, margin: 0),
+      CardSet.cards_glennorous => await sheetIWH('$which.png', 36, 54, spacing: 0, margin: 0),
     };
     sendMessage(RefreshCards());
   }
@@ -93,5 +99,8 @@ class CardsSelection extends Component with AutoDispose {
         ..addEntry(CardSet.cards_clean, 'Clean')
         ..addEntry(CardSet.cards_kin, 'KIN\'s')
         ..addEntry(CardSet.cards_lazy, 'Lazyspace')
+        ..addEntry(CardSet.cards_unknown, 'Unknown Cards')
+        ..addEntry(CardSet.cards_fantasy, 'Fantasy Cards')
+        ..addEntry(CardSet.cards_glennorous, 'Glennorous Cards')
         ..preselectEntry(active_card_set);
 }
