@@ -14,6 +14,8 @@ import 'minden_settings.dart';
 typedef Hook = void Function();
 typedef AutoPlacement = (TargetStack, void Function());
 
+CardGame get card_game => minden_game.settings.card_game;
+
 final minden_game = MindenGame();
 
 final board_stack_places = {

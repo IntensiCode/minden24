@@ -1,15 +1,16 @@
 Original Amiga Game by:
----
-Klaus Kramer (ZENTAC)
----
+- Klaus Kramer (ZENTAC)
+
 End Screen Quotation:
----
-Excerpt from "The Story of Flying Robert" from the 1845 children's book "Slovenly Peter" by Heinrich Hoffmann (1809-1894).
----
+- Excerpt from "The Story of Flying Robert"
+- From the 1845 children's book "Slovenly Peter"
+- By Heinrich Hoffmann (1809-1894).
+
 Cards by:
----
-https://suomigamehub.itch.io/pikselipelikortit
----
+- https://suomigamehub.itch.io
+- https://captainlaptop.itch.io
+- https://the-wild-kin.itch.io
+- https://lazyspace.itch.io
+
 Music by:
----
-https://suno.com
+- https://suno.com

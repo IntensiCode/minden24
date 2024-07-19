@@ -143,7 +143,9 @@ class DraggableCardComponent extends SpriteComponent with AutoDispose, TapCallba
     if (minden_game.game_locked) return;
     if (!is_free_to_move || _drag_check == null) return;
     for (final it in _batch_peers) {
-      it._update_drag(event.localDelta, it != _batch_peers.first);
+      final scaled = event.localDelta.clone();
+      scaled.multiply(scale);
+      it._update_drag(scaled, it != _batch_peers.first);
     }
   }
 

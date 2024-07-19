@@ -31,4 +31,8 @@ class FindDragTarget with Message {
   final void Function(TargetStack stack) when_found;
 }
 
+class PickCards with Message {}
+
 class PickMusic with Message {}
+
+class RefreshCards with Message {}

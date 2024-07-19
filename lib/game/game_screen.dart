@@ -13,7 +13,7 @@ import '../util/messaging.dart';
 import '../util/shortcuts.dart';
 import 'auto_solver.dart';
 import 'board_stack_component.dart';
-import 'card_game.dart';
+import 'cards_selection.dart';
 import 'credits.dart';
 import 'end.dart';
 import 'game_messages.dart';
@@ -41,20 +41,17 @@ class GameScreen extends PositionComponent with AutoDispose, HasAutoDisposeShort
       minden_game.new_game();
     }
 
-    add(AutoSolver());
-    add(MusicSelection());
+    await add(AutoSolver());
+    await add(CardsSelection());
+    await add(MusicSelection());
 
     _button ??= await image('button_plain.png');
 
     await add(RectangleComponent(size: size, paint: pixelPaint()..color = minden_green));
 
-    final cards = await sheetIWH('cards.png', 72, 92, spacing: 2, margin: 1);
-
-    final CardGame card_game = minden_game.settings.card_game;
-
     final pos = ace_stacks_offset;
     for (final (index, ace_stack) in minden_game.ace_stacks.indexed) {
-      final stack = AceStackComponent(cards_sheet: cards, stack: ace_stack, card_game: card_game);
+      final stack = AceStackComponent(stack: ace_stack);
       stack.position = pos;
       await add(stack);
       if (index < 8) {
@@ -66,23 +63,30 @@ class GameScreen extends PositionComponent with AutoDispose, HasAutoDisposeShort
 
     pos.setFrom(play_stacks_offset);
     for (final play_stack in minden_game.play_stacks) {
-      final stack = PlayStackComponent(cards_sheet: cards, stack: play_stack, card_game: card_game);
+      final stack = PlayStackComponent(stack: play_stack);
       stack.position = pos;
       await add(stack);
       pos.x += stack.width + stack_gap.x;
     }
 
-    await add(BoardStackComponent(cards_sheet: cards, stack: minden_game.board_stack)..position = board_stack_offset);
+    await add(
+      BoardStackComponent(stack: minden_game.board_stack)..position = board_stack_offset,
+    );
 
     late NewGameDialog new_game_dialog;
 
-    await add(_make_button('Undo', 9, 1, 'u', () => minden_game.undo()));
-    await add(_make_button('Try Again', 73, 1, '<A-t>', () => new_game_dialog.try_again()));
-    await add(_make_button('New Game', 193, 1, '<A-n>', () => new_game_dialog.new_game()));
-    await add(_make_button('How To Play', 313, 1, '<A-h>', () => add(HowToPlay())));
-    await add(_make_button('Credits', 457, 1, '<A-c>', () => add(Credits())));
-    // await add(_make_button('*', 571, 1, '<A-c>', () => add(Credits())));
-    await add(_make_button('\u007F', 610, 1, '<A-m>', () => sendMessage(PickMusic())));
+    void unless_locked(Function() action) {
+      if (minden_game.game_locked) return;
+      action();
+    }
+
+    await add(_make_button('Undo', 9, 1, 'u', () => unless_locked(minden_game.undo)));
+    await add(_make_button('Try Again', 73, 1, '<A-t>', () => unless_locked(new_game_dialog.try_again)));
+    await add(_make_button('New Game', 193, 1, '<A-n>', () => unless_locked(new_game_dialog.new_game)));
+    await add(_make_button('How To Play', 313, 1, '<A-h>', () => unless_locked(() => add(HowToPlay()))));
+    await add(_make_button('Credits', 457, 1, '<A-k>', () => unless_locked(() => add(Credits()))));
+    await add(_make_button('*', 571, 1, '<A-c>', () => unless_locked(() => sendMessage(PickCards()))));
+    await add(_make_button('\u007F', 610, 1, '<A-m>', () => unless_locked(() => sendMessage(PickMusic()))));
 
     if (dev) await add(_make_button('End', 750, 565, '<A-e>', () => add(End())));
 

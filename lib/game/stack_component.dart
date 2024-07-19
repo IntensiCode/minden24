@@ -1,28 +1,19 @@
 import 'package:dart_minilog/dart_minilog.dart';
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
-import 'package:flame/sprite.dart';
 
 import '../core/core.dart';
 import '../util/auto_dispose.dart';
 import '../util/on_message.dart';
 import 'card_game.dart';
+import 'cards_selection.dart';
 import 'draggable_card.dart';
 import 'game_messages.dart';
 import 'minden_game.dart';
 
 abstract class StackComponent<T extends CardStack> extends PositionComponent with AutoDispose {
-  StackComponent({
-    required SpriteSheet cards_sheet,
-    required T stack,
-    required CardGame card_game,
-  })  : _cards_sheet = cards_sheet,
-        _stack = stack {
-    size.x = cards_sheet.srcSize.x + card_game.number_of_cards_per_set * x_spacing;
-    size.y = cards_sheet.srcSize.y + card_game.number_of_cards_per_set * y_spacing;
-  }
+  StackComponent({required T stack}) : _stack = stack;
 
-  final SpriteSheet _cards_sheet;
   final T _stack;
 
   final _mine = <Component>[];
@@ -30,6 +21,9 @@ abstract class StackComponent<T extends CardStack> extends PositionComponent wit
   @override
   Future onLoad() async {
     super.onLoad();
+
+    size.x = card_width + card_game.number_of_cards_per_set * x_spacing;
+    size.y = card_height + card_game.number_of_cards_per_set * y_spacing;
 
     onMessage<AnimateToTarget>((it) {
       if (!identical(it.target, _stack)) return;
@@ -58,47 +52,59 @@ abstract class StackComponent<T extends CardStack> extends PositionComponent wit
       if (it.not_in == _stack) return;
 
       final stacking = _stack.cards.length;
-      final size_x = _cards_sheet.srcSize.x + stacking * x_spacing - x_spacing;
-      final size_y = _cards_sheet.srcSize.y + stacking * y_spacing;
+      final size_x = active_cards.srcSize.x + stacking * x_spacing - x_spacing;
+      final size_y = active_cards.srcSize.y + stacking * y_spacing;
       if (it.at.x < position.x || it.at.x > position.x + size_x) return;
       if (it.at.y < position.y || it.at.y > position.y + size_y) return;
 
       it.when_found(_stack);
     });
 
-    // TODO optimize recreate + snapshot
+    onMessage<RefreshCards>((it) => _recreate());
 
-    _stack.when_changed = () {
-      parent!.removeAll(_mine);
-      _mine.clear();
+    _stack.when_changed = () => _recreate();
+  }
 
-      if (children.isEmpty) add(SpriteComponent(sprite: placeholder));
+  // TODO optimize recreate + snapshot
 
-      for (final (index, card) in _stack.cards.indexed) {
-        final position = Vector2(index * x_spacing, index * y_spacing);
+  void _recreate() {
+    parent!.removeAll(_mine);
+    _mine.clear();
 
-        final batch = _stack.cards.toList();
-        batch.removeRange(0, index);
+    final scale = Vector2(
+      card_width / active_cards.getSpriteById(0).srcSize.x,
+      card_height / active_cards.getSpriteById(0).srcSize.y,
+    );
 
-        final PositionComponent component;
-        if (_stack case SourceStack it) {
-          component = DraggableCardComponent(
-            sprite: _cards_sheet.sprite_for_card(card),
-            position: position,
-            container: it,
-            batch: batch,
-            is_free_to_move: true,
-            make_batch_peers: _make_batch_peers,
-          );
-        } else {
-          component = SpriteComponent(sprite: _cards_sheet.sprite_for_card(card), position: position);
-        }
-        component.position.add(this.position);
+    removeAll(children);
+    add(SpriteComponent(sprite: placeholder, scale: scale));
 
-        parent!.add(component);
-        _mine.add(component);
+    for (final (index, card) in _stack.cards.indexed) {
+      final position = Vector2(index * x_spacing, index * y_spacing);
+
+      final batch = _stack.cards.toList();
+      batch.removeRange(0, index);
+
+      final sprite = active_cards.sprite_for_card(card);
+      final PositionComponent component;
+      if (_stack case SourceStack it) {
+        component = DraggableCardComponent(
+          sprite: sprite,
+          position: position,
+          container: it,
+          batch: batch,
+          is_free_to_move: true,
+          make_batch_peers: _make_batch_peers,
+        );
+      } else {
+        component = SpriteComponent(sprite: sprite, position: position);
       }
-    };
+      component.position.add(this.position);
+      component.scale.setFrom(scale);
+
+      parent!.add(component);
+      _mine.add(component);
+    }
   }
 
   List<DraggableCardComponent> _make_batch_peers(List<Card> batch) {
@@ -115,20 +121,20 @@ abstract class StackComponent<T extends CardStack> extends PositionComponent wit
 }
 
 class AceStackComponent extends StackComponent<AceStack> {
-  AceStackComponent({required super.cards_sheet, required super.stack, required super.card_game});
+  AceStackComponent({required super.stack});
 
   @override
-  Sprite get placeholder => _cards_sheet.ace_placeholder;
+  Sprite get placeholder => active_cards.ace_placeholder;
 
   @override
   double get y_spacing => x_spacing;
 }
 
 class PlayStackComponent extends StackComponent<PlayStack> {
-  PlayStackComponent({required super.cards_sheet, required super.stack, required super.card_game});
+  PlayStackComponent({required super.stack});
 
   @override
-  Sprite get placeholder => _cards_sheet.play_placeholder;
+  Sprite get placeholder => active_cards.play_placeholder;
 
   @override
   double get y_spacing => 18;

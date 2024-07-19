@@ -14,7 +14,7 @@ class Credits extends GameScriptComponent {
   @override
   void onLoad() async {
     var text = await game.assets.readFile('data/credits.txt');
-    text = text.split('\n').join('').replaceAll('---', '\n\n');
+    text = text;
 
     final content = PositionComponent(
       size: Vector2(640, 480),
@@ -29,8 +29,8 @@ class Credits extends GameScriptComponent {
           text: text,
           font: menu_font,
           font_scale: 0.5,
-          position: Vector2(_dialog_size.x / 2, _dialog_size.y - 16),
-          size: Vector2(640 - 23, 400 - 96),
+          position: Vector2(_dialog_size.x / 2, _dialog_size.y - 0),
+          size: Vector2(640 - 23, 400 - 72),
           anchor: Anchor.bottomCenter,
         ),
       ],
