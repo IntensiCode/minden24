@@ -1,8 +1,15 @@
 import 'package:flame/components.dart';
 
 import '../core/core.dart';
+import 'card_game.dart';
 import 'draggable_card.dart';
 import 'minden_game.dart';
+
+class AnimateAutoSolve with Message {
+  AnimateAutoSolve(this.card);
+
+  final Card card;
+}
 
 class AnimateToTarget with Message {
   AnimateToTarget(this.batch, this.target, this.on_complete);

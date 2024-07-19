@@ -5,15 +5,17 @@ import 'package:flame/effects.dart';
 import 'package:flame/events.dart';
 
 import '../core/core.dart';
+import '../util/auto_dispose.dart';
 import '../util/extensions.dart';
 import '../util/messaging.dart';
+import '../util/on_message.dart';
 import 'card_game.dart';
 import 'card_overlay.dart';
 import 'game_messages.dart';
 import 'minden_game.dart';
 import 'soundboard.dart';
 
-class DraggableCardComponent extends SpriteComponent with TapCallbacks, DragCallbacks {
+class DraggableCardComponent extends SpriteComponent with AutoDispose, TapCallbacks, DragCallbacks {
   DraggableCardComponent({
     required Sprite sprite,
     required Vector2 position,
@@ -36,16 +38,26 @@ class DraggableCardComponent extends SpriteComponent with TapCallbacks, DragCall
 
   bool is_part_of(List<Card> batch) => batch.any((it) => identical(it, this.batch.first));
 
-  static bool _game_locked = false;
-
   static bool get tap_to_auto_place => minden_game.settings.tap_to_auto_place;
 
   static bool get batch_drag => minden_game.settings.batch_drag;
 
   @override
+  void onMount() {
+    super.onMount();
+    onMessage<AnimateAutoSolve>((it) async {
+      if (!identical(it.card, batch.first)) return;
+      final AutoPlacement? auto_place = minden_game.find_auto_placement_for(card: it.card, from: container);
+      sendMessage(AnimateToTarget([this], auto_place!.$1, () {
+        auto_place.$2.call();
+      }));
+    });
+  }
+
+  @override
   void onTapUp(TapUpEvent event) {
     super.onTapUp(event);
-    if (_game_locked) return;
+    if (minden_game.game_locked) return;
     if (!is_free_to_move) return;
     if (!tap_to_auto_place) return;
 
@@ -57,10 +69,10 @@ class DraggableCardComponent extends SpriteComponent with TapCallbacks, DragCall
     }
 
     if (auto_place != null) {
-      _game_locked = true;
+      minden_game.game_locked = true;
       final batch_peers = make_batch_peers?.call(batch) ?? [this];
       sendMessage(AnimateToTarget(batch_peers, auto_place.$1, () {
-        _game_locked = false;
+        minden_game.game_locked = false;
         auto_place?.$2.call();
       }));
     }
@@ -90,7 +102,7 @@ class DraggableCardComponent extends SpriteComponent with TapCallbacks, DragCall
   @override
   void onDragStart(DragStartEvent event) {
     super.onDragStart(event);
-    if (_game_locked) return;
+    if (minden_game.game_locked) return;
     if (!is_free_to_move) return;
     if (batch.length > 1 && !batch_drag) return;
     _batch_peers = make_batch_peers?.call(batch) ?? [this];
@@ -128,7 +140,7 @@ class DraggableCardComponent extends SpriteComponent with TapCallbacks, DragCall
   @override
   void onDragUpdate(DragUpdateEvent event) {
     super.onDragUpdate(event);
-    if (_game_locked) return;
+    if (minden_game.game_locked) return;
     if (!is_free_to_move || _drag_check == null) return;
     for (final it in _batch_peers) {
       it._update_drag(event.localDelta, it != _batch_peers.first);
@@ -162,7 +174,7 @@ class DraggableCardComponent extends SpriteComponent with TapCallbacks, DragCall
   @override
   void onDragEnd(DragEndEvent event) {
     super.onDragEnd(event);
-    if (_game_locked) return;
+    if (minden_game.game_locked) return;
     if (!is_free_to_move || _drag_reset == null) return;
     for (final it in _batch_peers) {
       it._end_drag(it != _batch_peers.first);

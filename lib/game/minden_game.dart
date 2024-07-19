@@ -4,6 +4,7 @@ import 'package:collection/collection.dart';
 import 'package:dart_minilog/dart_minilog.dart';
 import 'package:flame/extensions.dart';
 import 'package:flame/sprite.dart';
+import 'package:kart/kart.dart' hide KtIterableExtension;
 
 import '../util/extensions.dart';
 import '../util/storage.dart';
@@ -287,6 +288,8 @@ class BoardStack with SourceStack {
 
   int get number_of_cards_in_top_layer => _layers.isEmpty ? 0 : _layers.last.number_of_placed_cards;
 
+  Iterable<Card> get all_remaining_cards => _layers.expand((it) => it._cards).mapNotNull((it) => it?.card);
+
   Iterable<BoardStackLayer> get layers => _layers;
 
   void new_game(Difficulty difficulty) {
@@ -388,12 +391,28 @@ class BoardStack with SourceStack {
 /// only layer by layer. cards from a layer block cards from the layer below. play stack cards can be taken from any
 /// play stack, but only the top-most card can be taken.
 class MindenGame {
+  bool game_locked = false;
+
   var settings = MindenSettings();
 
   final board_stack = BoardStack();
 
   late final List<AceStack> ace_stacks = List.generate(12, (_) => AceStack(), growable: false);
   late final List<PlayStack> play_stacks = List.generate(8, (_) => PlayStack(), growable: false);
+
+  void Function() on_auto_solve = () {};
+
+  bool get is_solved => all_remaining_cards.isEmpty;
+
+  Card? get next_auto_solve => all_remaining_cards.firstOrNull;
+
+  Iterable<Card> get all_remaining_cards {
+    final all = <Card>[];
+    all.addAll(board_stack.all_remaining_cards);
+    all.addAll(play_stacks.expand((it) => it.cards));
+    all.sort((a,b) => a.value.index - b.value.index);
+    return all;
+  }
 
   void new_game({MindenSettings? new_game_settings}) {
     settings = new_game_settings ?? settings;
@@ -552,16 +571,29 @@ class MindenGame {
 
   void undo() {
     if (_undo.isEmpty) return;
-    load_state(_undo.removeLast());
+    load_state(_pending_undo = _undo.removeLast());
   }
 
   final _undo = <GameData>[];
+  GameData? _pending_undo;
 
   Future save() async {
+    if (game_locked) return;
+
+    if (_pending_undo != null) {
+      _undo.add(_pending_undo!);
+      _pending_undo = null;
+    }
+
     logInfo('save game state');
     final data = save_state();
-    _undo.add(data);
     await save_data('minden_game', data);
+
+    _pending_undo = data;
+
+    if (board_stack._layers.length == 1) {
+      on_auto_solve();
+    }
   }
 
   Future load() async {

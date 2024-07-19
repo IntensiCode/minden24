@@ -42,7 +42,8 @@ abstract class StackComponent<T extends CardStack> extends PositionComponent wit
       for (final card in it.batch) {
         card.is_free_to_move = false;
         card.priority = 1;
-        card.add(MoveToEffect(top_left, EffectController(duration: 0.1), onComplete: () {
+        final distance = card.position.distanceTo(top_left);
+        card.add(MoveToEffect(top_left, EffectController(duration: distance / 5000), onComplete: () {
           card.is_free_to_move = true;
           card.priority = 0;
           if (card == it.batch.last) it.on_complete();

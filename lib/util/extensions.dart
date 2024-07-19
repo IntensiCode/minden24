@@ -63,6 +63,15 @@ extension DynamicListExtensions on List<dynamic> {
 
 extension IterableExtensions<T> on Iterable<T> {
   List<R> mapList<R>(R Function(T) f) => map(f).toList();
+
+  Iterable<T> operator +(Iterable<T> other) sync* {
+    for (final e in this) {
+      yield e;
+    }
+    for (final o in other) {
+      yield o;
+    }
+  }
 }
 
 extension ListExtensions<T> on List<T> {
