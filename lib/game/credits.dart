@@ -1,4 +1,5 @@
 import 'package:flame/components.dart';
+import 'package:minden24/util/extensions.dart';
 
 import '../components/flow_text.dart';
 import '../core/core.dart';
@@ -41,12 +42,12 @@ class Credits extends GameScriptComponent {
       content: content,
       keys: DialogKeys(
         handlers: {
-          GameKey.soft1: () => removeFromParent(),
-          GameKey.soft2: () => removeFromParent(),
+          GameKey.soft1: () => fadeOutDeep(),
+          GameKey.soft2: () => fadeOutDeep(),
         },
         left: 'Ok',
         tap_key: GameKey.soft2,
       ),
-    ));
+    )..fadeInDeep());
   }
 }

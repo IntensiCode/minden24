@@ -1,5 +1,6 @@
 import 'package:flame/components.dart';
 import 'package:flame/sprite.dart';
+import 'package:minden24/util/extensions.dart';
 
 import '../components/basic_menu.dart';
 import '../core/core.dart';
@@ -56,15 +57,15 @@ class MusicSelection extends Component with AutoDispose {
     GameDialog? dialog;
     add(dialog = GameDialog(
       size: _dialog_size,
-      content: _create_menu(() => dialog?.removeFromParent()),
+      content: _create_menu(() => dialog?.fadeOutDeep()),
       keys: DialogKeys(
         handlers: {
-          GameKey.soft1: () => dialog?.removeFromParent(),
-          GameKey.soft2: () => dialog?.removeFromParent(),
+          GameKey.soft1: () => dialog?.fadeOutDeep(),
+          GameKey.soft2: () => dialog?.fadeOutDeep(),
         },
         right: 'Ok',
       ),
-    ));
+    )..fadeInDeep());
   }
 
   PositionComponent _create_menu(Hook and_then) => BasicMenu<MusicTrack>(

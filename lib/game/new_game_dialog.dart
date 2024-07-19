@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flame/components.dart';
 import 'package:flame/sprite.dart';
+import 'package:minden24/util/extensions.dart';
 
 import '../components/basic_menu.dart';
 import '../components/basic_menu_button.dart';
@@ -63,11 +64,11 @@ class NewGameDialog extends Component {
       keys: DialogKeys(
         handlers: {
           GameKey.soft1: () {
-            dialog?.removeFromParent();
+            dialog?.fadeOutDeep();
           },
           GameKey.soft2: () {
             and_then(_new_settings);
-            dialog?.removeFromParent();
+            dialog?.fadeOutDeep();
           },
         },
         left: 'Cancel',
