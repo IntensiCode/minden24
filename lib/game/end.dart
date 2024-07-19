@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flame/components.dart';
 import 'package:minden24/util/extensions.dart';
 
@@ -11,9 +13,10 @@ class End extends GameScriptComponent {
 
   @override
   void onLoad() async {
+    final pick = 1 + Random(DateTime.timestamp().millisecondsSinceEpoch).nextInt(3);
     await add(GameDialog(
       size: _dialog_size,
-      content: await spriteXY('end.png', 0, 0, Anchor.topLeft),
+      content: await spriteXY('end$pick.png', 0, 0, Anchor.topLeft),
       background: false,
       keys: DialogKeys(
         handlers: {
