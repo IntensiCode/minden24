@@ -3,6 +3,9 @@ import 'package:flame/game.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+typedef Check = bool Function();
+typedef Hook = void Function();
+
 bool debug = false;
 bool dev = kDebugMode;
 

@@ -25,7 +25,7 @@ Future<BitmapButton> button({
   required Function(BitmapButton) onTap,
 }) async =>
     BitmapButton(
-      bgNinePatch: bgNinePatch ?? await image('button_plain.png'),
+      bg_nine_patch: bgNinePatch ?? await image('button_plain.png'),
       text: text,
       cornerSize: cornerSize,
       position: position,
@@ -33,7 +33,7 @@ Future<BitmapButton> button({
       font: font,
       anchor: anchor,
       shortcuts: shortcuts,
-      fontScale: fontScale,
+      font_scale: fontScale,
       tint: tint,
       onTap: onTap,
     );
@@ -44,13 +44,13 @@ class BitmapButton extends PositionComponent
   final NinePatchImage? background;
   final String text;
   final BitmapFont font;
-  final double fontScale;
+  final double font_scale;
   final int cornerSize;
   final Function(BitmapButton) onTap;
   final List<String> shortcuts;
 
   BitmapButton({
-    Image? bgNinePatch,
+    Image? bg_nine_patch,
     required this.text,
     this.cornerSize = 8,
     Vector2? position,
@@ -58,15 +58,15 @@ class BitmapButton extends PositionComponent
     BitmapFont? font,
     Anchor? anchor,
     this.shortcuts = const [],
-    this.fontScale = 1,
+    this.font_scale = 1,
     Color? tint,
     required this.onTap,
   })  : font = font ?? tiny_font,
-        background = bgNinePatch != null ? NinePatchImage(bgNinePatch, cornerSize: cornerSize) : null {
+        background = bg_nine_patch != null ? NinePatchImage(bg_nine_patch, cornerSize: cornerSize) : null {
     if (position != null) this.position.setFrom(position);
     if (tint != null) this.tint(tint);
     if (size == null) {
-      this.font.scale = fontScale;
+      this.font.scale = font_scale;
       this.size = this.font.textSize(text);
       this.size.x = (this.size.x ~/ cornerSize * cornerSize).toDouble() + cornerSize * 2;
       this.size.y = (this.size.y ~/ cornerSize * cornerSize).toDouble() + cornerSize * 2;
@@ -90,16 +90,16 @@ class BitmapButton extends PositionComponent
   render(Canvas canvas) {
     background?.draw(canvas, 0, 0, size.x, size.y, paint);
 
-    font.scale = fontScale;
+    font.scale = font_scale;
     font.paint.color = paint.color;
     font.paint.colorFilter = paint.colorFilter;
     font.paint.filterQuality = FilterQuality.none;
     font.paint.isAntiAlias = false;
     font.paint.blendMode = paint.blendMode;
-    font.scale = fontScale;
+    font.scale = font_scale;
 
     final xOff = (size.x - font.lineWidth(text)) / 2;
-    final yOff = (size.y - font.lineHeight(fontScale)) / 2;
+    final yOff = (size.y - font.lineHeight(font_scale)) / 2;
     font.drawString(canvas, xOff, yOff, text);
   }
 

@@ -13,7 +13,7 @@ Playable version: https://intensicode.github.io/minden24/
 
 ### To Do
 
-- [ ] all options to make game == original
+- [ ] fix drag target size for card set size
 - [ ] title screen? or just popup how-to-play dialog?
 - [ ] show how-to-play dialog initially if no title screen
 
@@ -23,3 +23,4 @@ Playable version: https://intensicode.github.io/minden24/
 - [X] music selection dialog
 - [X] BUG fix drag to match card set
 - [X] BUG fix card overlay to match card set
+- [X] all options to make game == original

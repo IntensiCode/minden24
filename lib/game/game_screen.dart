@@ -106,11 +106,11 @@ class GameScreen extends PositionComponent with AutoDispose, HasAutoDisposeShort
   }
 
   BitmapButton _make_button(String text, double x, double y, String shortcut, Function() onTap) => BitmapButton(
-        bgNinePatch: _button,
+        bg_nine_patch: _button,
         text: text,
         position: Vector2(x, y),
         font: menu_font,
-        fontScale: 0.5,
+        font_scale: 0.5,
         shortcuts: [shortcut],
         anchor: Anchor.topLeft,
         onTap: (_) => onTap(),

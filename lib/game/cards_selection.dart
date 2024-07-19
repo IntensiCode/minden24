@@ -2,6 +2,7 @@ import 'package:flame/components.dart';
 import 'package:flame/sprite.dart';
 
 import '../components/basic_menu.dart';
+import '../core/core.dart';
 import '../util/auto_dispose.dart';
 import '../util/fonts.dart';
 import '../util/functions.dart';
@@ -11,7 +12,6 @@ import '../util/on_message.dart';
 import '../util/storage.dart';
 import 'game_dialog.dart';
 import 'game_messages.dart';
-import 'minden_game.dart';
 
 late CardSet active_card_set;
 late SpriteSheet active_cards;

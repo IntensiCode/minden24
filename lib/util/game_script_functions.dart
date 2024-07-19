@@ -46,10 +46,10 @@ mixin GameScriptFunctions on Component, AutoDispose {
     Function() onTap,
   ) async {
     final it = BitmapButton(
-      bgNinePatch: bg,
+      bg_nine_patch: bg,
       text: text,
       font: menu_font,
-      fontScale: 0.5,
+      font_scale: 0.5,
       position: Vector2(x, y),
       anchor: anchor,
       onTap: (_) => onTap(),
@@ -163,10 +163,10 @@ mixin GameScriptFunctions on Component, AutoDispose {
   }) async {
     final button = await images.load(bgNinePatch ?? 'button_plain.png');
     final it = BitmapButton(
-      bgNinePatch: button,
+      bg_nine_patch: button,
       text: text,
       font: menu_font,
-      fontScale: 0.25,
+      font_scale: 0.25,
       position: pos,
       anchor: anchor,
       onTap: onTap ?? (_) => {},

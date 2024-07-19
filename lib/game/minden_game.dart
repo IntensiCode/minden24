@@ -6,12 +6,12 @@ import 'package:flame/extensions.dart';
 import 'package:flame/sprite.dart';
 import 'package:kart/kart.dart' hide KtIterableExtension;
 
+import '../core/core.dart';
 import '../util/extensions.dart';
 import '../util/storage.dart';
 import 'card_game.dart';
 import 'minden_settings.dart';
 
-typedef Hook = void Function();
 typedef AutoPlacement = (TargetStack, void Function());
 
 CardGame get card_game => minden_game.settings.card_game;

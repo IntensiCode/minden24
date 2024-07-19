@@ -79,8 +79,8 @@ class BasicMenu<T> extends PositionComponent with AutoDispose, HasAutoDisposeSho
       text,
       sheet: button,
       font: font,
-      fontScale: fontScale,
-      onTap: () => _onSelected(id),
+      font_scale: fontScale,
+      on_tap: () => _onSelected(id),
       text_anchor: anchor,
     );
     _entries.add((id, it));
@@ -91,7 +91,7 @@ class BasicMenu<T> extends PositionComponent with AutoDispose, HasAutoDisposeSho
 
   preselectEntry(T? id) {
     for (final it in _entries) {
-      it.$2.selected = it.$1 == id;
+      it.$2.selected = identical(it.$1, id);
     }
     if (_preselected != id) {
       _preselected = id;

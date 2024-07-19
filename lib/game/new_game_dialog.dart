@@ -7,21 +7,18 @@ import '../components/basic_menu.dart';
 import '../components/basic_menu_button.dart';
 import '../components/flow_text.dart';
 import '../core/core.dart';
+import '../util/auto_dispose.dart';
 import '../util/bitmap_text.dart';
 import '../util/fonts.dart';
 import '../util/functions.dart';
 import '../util/game_keys.dart';
+import '../util/messaging.dart';
+import '../util/on_message.dart';
 import 'game_dialog.dart';
 import 'minden_game.dart';
 import 'minden_settings.dart';
 
-enum _Choice {
-  easy,
-  normal,
-  hard,
-  very_hard,
-  toggle_shuffle,
-}
+class _Refresh with Message {}
 
 class NewGameDialog extends Component {
   static final _dialog_size = Vector2(640, 400);
@@ -29,7 +26,7 @@ class NewGameDialog extends Component {
   late final SpriteSheet _menu_entry;
   late final String _help_text;
 
-  late BasicMenuButton _toggle_shuffle;
+  late MindenSettings _new_settings;
 
   @override
   Future onLoad() async {
@@ -57,57 +54,56 @@ class NewGameDialog extends Component {
   void _pick_difficulty({required void Function(MindenSettings) and_then}) {
     if (children.whereType<GameDialog>().isNotEmpty) return;
 
+    _new_settings = minden_game.settings.copy();
+
     GameDialog? dialog;
     add(dialog = GameDialog(
       size: _dialog_size,
-      content: _create_menu((it) {
-        and_then(it);
-        dialog?.removeFromParent();
-      }),
+      content: _create_menu(),
       keys: DialogKeys(
-        handlers: {GameKey.soft1: () => dialog?.removeFromParent()},
+        handlers: {
+          GameKey.soft1: () {
+            dialog?.removeFromParent();
+          },
+          GameKey.soft2: () {
+            and_then(_new_settings);
+            dialog?.removeFromParent();
+          },
+        },
         left: 'Cancel',
+        right: 'Start',
       ),
     ));
   }
 
-  PositionComponent _create_menu(void Function(MindenSettings) and_then) {
-    var new_settings = minden_game.settings.copy();
-    final menu = BasicMenu<_Choice>(
+  PositionComponent _create_menu() {
+    late final BasicMenu menu;
+
+    menu = BasicMenu<Difficulty>(
       button: _menu_entry,
       font: menu_font,
       fontScale: 0.5,
-      fixed_position: Vector2(_dialog_size.x / 2, 160),
+      fixed_position: Vector2(_dialog_size.x / 4, 160),
       fixed_anchor: Anchor.center,
       onSelected: (it) {
         switch (it) {
-          case _Choice.easy:
-            and_then(new_settings.copy(difficulty: Difficulty.easy));
-          case _Choice.normal:
-            and_then(new_settings.copy(difficulty: Difficulty.normal));
-          case _Choice.hard:
-            and_then(new_settings.copy(difficulty: Difficulty.hard));
-          case _Choice.very_hard:
-            and_then(new_settings.copy(difficulty: Difficulty.very_hard));
-          case _Choice.toggle_shuffle:
-            new_settings = new_settings.copy(easy_shuffle: !new_settings.easy_shuffle);
-            _toggle_shuffle.checked = new_settings.easy_shuffle;
+          case Difficulty.easy:
+            _new_settings = _new_settings.copy(difficulty: Difficulty.easy);
+          case Difficulty.normal:
+            _new_settings = _new_settings.copy(difficulty: Difficulty.normal);
+          case Difficulty.hard:
+            _new_settings = _new_settings.copy(difficulty: Difficulty.hard);
+          case Difficulty.very_hard:
+            _new_settings = _new_settings.copy(difficulty: Difficulty.very_hard);
         }
+        menu.preselectEntry(it);
       },
     )
-      ..addEntry(_Choice.easy, 'Easy')
-      ..addEntry(_Choice.normal, 'Normal')
-      ..addEntry(_Choice.hard, 'Hard')
-      ..addEntry(_Choice.very_hard, 'Very Hard')
-      ..preselectEntry(switch (new_settings.difficulty) {
-        Difficulty.easy => _Choice.easy,
-        Difficulty.normal => _Choice.normal,
-        Difficulty.hard => _Choice.hard,
-        Difficulty.very_hard => _Choice.very_hard,
-      });
-
-    _toggle_shuffle = menu.addEntry(_Choice.toggle_shuffle, 'Easy Shuffle', anchor: Anchor.centerLeft);
-    _toggle_shuffle.checked = new_settings.easy_shuffle;
+      ..addEntry(Difficulty.easy, 'Original 2x8 [7]')
+      ..addEntry(Difficulty.normal, '2x7 [6] Stack')
+      ..addEntry(Difficulty.hard, '2x6 [5] Stack')
+      ..addEntry(Difficulty.very_hard, '2x5 [4] Stack')
+      ..preselectEntry(_new_settings.difficulty);
 
     final content = PositionComponent(size: _dialog_size);
     content.add(BitmapText(
@@ -116,16 +112,112 @@ class NewGameDialog extends Component {
       position: Vector2(_dialog_size.x / 2, 32),
       anchor: Anchor.center,
     ));
+    content.add(BitmapText(
+      text: 'Shuffle Stack Width',
+      font: menu_font,
+      scale: 0.5,
+      position: Vector2(_dialog_size.x / 4, 72),
+      anchor: Anchor.center,
+    ));
+    content.add(BitmapText(
+      text: 'Options',
+      font: menu_font,
+      scale: 0.5,
+      position: Vector2(_dialog_size.x * 2 / 3 + 30, 72),
+      anchor: Anchor.center,
+    ));
+
     content.add(menu);
+
+    content.add(_Switch(
+      sheet: _menu_entry,
+      text: 'Easy Shuffle',
+      y_pos: 92,
+      checked: () => _new_settings.easy_shuffle,
+      on_toggle: () => _new_settings = _new_settings.copy(easy_shuffle: !_new_settings.easy_shuffle),
+    ));
+    content.add(_Switch(
+      sheet: _menu_entry,
+      text: 'Auto Finish',
+      y_pos: 126,
+      checked: () => _new_settings.auto_finish,
+      on_toggle: () => _new_settings = _new_settings.copy(auto_finish: !_new_settings.auto_finish),
+    ));
+    content.add(_Switch(
+      sheet: _menu_entry,
+      text: 'Allow Batch Drag',
+      y_pos: 160,
+      checked: () => _new_settings.batch_drag,
+      on_toggle: () => _new_settings = _new_settings.copy(batch_drag: !_new_settings.batch_drag),
+    ));
+    content.add(_Switch(
+      sheet: _menu_entry,
+      text: 'Allow Tap To Place',
+      y_pos: 194,
+      checked: () => _new_settings.tap_to_auto_place,
+      on_toggle: () => _new_settings = _new_settings.copy(tap_to_auto_place: !_new_settings.tap_to_auto_place),
+    ));
+
+    content.add(BasicMenuButton(
+      'Original Settings',
+      sheet: _menu_entry,
+      font: menu_font,
+      font_scale: 0.5,
+      on_tap: () {
+        _new_settings = _new_settings.copy(
+          difficulty: Difficulty.easy,
+          easy_shuffle: false,
+          auto_finish: false,
+          batch_drag: false,
+          tap_to_auto_place: false,
+        );
+        sendMessage(_Refresh());
+      },
+    )..position.setValues(_dialog_size.x / 4 + 10, 240));
+
     content.add(FlowText(
       text: _help_text,
       font: menu_font,
       font_scale: 0.4,
-      position: Vector2(_dialog_size.x / 2, _dialog_size.y - 16),
+      position: Vector2(_dialog_size.x / 2, _dialog_size.y - 8),
       size: Vector2(_dialog_size.x - 32, 112),
       anchor: Anchor.bottomCenter,
     ));
 
     return content;
+  }
+}
+
+class _Switch extends BasicMenuButton with AutoDispose {
+  _Switch({
+    required SpriteSheet sheet,
+    required String text,
+    required double y_pos,
+    required Check checked,
+    required Hook on_toggle,
+  })  : checked_state = checked,
+        super(
+          text,
+          sheet: sheet,
+          font: menu_font,
+          font_scale: 0.5,
+          text_anchor: Anchor.centerLeft,
+          on_tap: () {},
+        ) {
+    this.checked = checked_state();
+    this.position.x = 320;
+    this.position.y = y_pos;
+    super.on_tap = () {
+      on_toggle();
+      super.checked = checked_state();
+    };
+  }
+
+  final Check checked_state;
+
+  @override
+  void onMount() {
+    super.onMount();
+    onMessage<_Refresh>((_) => this.checked = checked_state());
   }
 }
