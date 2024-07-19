@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flame/components.dart';
+import 'package:minden24/game/soundboard.dart';
 import 'package:minden24/util/extensions.dart';
 
 import '../core/core.dart';
@@ -13,6 +14,9 @@ class End extends GameScriptComponent {
 
   @override
   void onLoad() async {
+    final music_pick = 1 + Random(DateTime.timestamp().millisecondsSinceEpoch).nextInt(4);
+    soundboard.play_music('music/end$music_pick.ogg');
+
     final pick = 1 + Random(DateTime.timestamp().millisecondsSinceEpoch).nextInt(3);
     await add(GameDialog(
       size: _dialog_size,
