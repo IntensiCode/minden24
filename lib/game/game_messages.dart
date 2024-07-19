@@ -30,3 +30,5 @@ class FindDragTarget with Message {
   final SourceStack not_in;
   final void Function(TargetStack stack) when_found;
 }
+
+class PickMusic with Message {}

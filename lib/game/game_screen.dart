@@ -9,14 +9,17 @@ import '../util/auto_dispose.dart';
 import '../util/bitmap_button.dart';
 import '../util/fonts.dart';
 import '../util/functions.dart';
+import '../util/messaging.dart';
 import '../util/shortcuts.dart';
 import 'auto_solver.dart';
 import 'board_stack_component.dart';
 import 'card_game.dart';
 import 'credits.dart';
 import 'end.dart';
+import 'game_messages.dart';
 import 'hot_to_play.dart';
 import 'minden_game.dart';
+import 'music_selection.dart';
 import 'new_game_dialog.dart';
 import 'soundboard.dart';
 import 'stack_component.dart';
@@ -39,6 +42,7 @@ class GameScreen extends PositionComponent with AutoDispose, HasAutoDisposeShort
     }
 
     add(AutoSolver());
+    add(MusicSelection());
 
     _button ??= await image('button_plain.png');
 
@@ -73,10 +77,12 @@ class GameScreen extends PositionComponent with AutoDispose, HasAutoDisposeShort
     late NewGameDialog new_game_dialog;
 
     await add(_make_button('Undo', 9, 1, 'u', () => minden_game.undo()));
-    await add(_make_button('Try Again', 77, 1, '<A-t>', () => new_game_dialog.try_again()));
-    await add(_make_button('New Game', 200, 1, '<A-n>', () => new_game_dialog.new_game()));
-    await add(_make_button('How To Play', 322, 1, '<A-h>', () => add(HowToPlay())));
-    await add(_make_button('Credits', 468, 1, '<A-c>', () => add(Credits())));
+    await add(_make_button('Try Again', 73, 1, '<A-t>', () => new_game_dialog.try_again()));
+    await add(_make_button('New Game', 193, 1, '<A-n>', () => new_game_dialog.new_game()));
+    await add(_make_button('How To Play', 313, 1, '<A-h>', () => add(HowToPlay())));
+    await add(_make_button('Credits', 457, 1, '<A-c>', () => add(Credits())));
+    // await add(_make_button('*', 571, 1, '<A-c>', () => add(Credits())));
+    await add(_make_button('\u007F', 610, 1, '<A-m>', () => sendMessage(PickMusic())));
 
     if (dev) await add(_make_button('End', 750, 565, '<A-e>', () => add(End())));
 
@@ -91,9 +97,6 @@ class GameScreen extends PositionComponent with AutoDispose, HasAutoDisposeShort
       change: (double volume) => soundboard.music = volume,
       volume: () => soundboard.music,
     ));
-
-    await soundboard.preload();
-    await soundboard.play_music('music/city_of_minden.ogg');
 
     await add(new_game_dialog = NewGameDialog());
   }
