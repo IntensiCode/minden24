@@ -6,7 +6,7 @@ Playable version: https://intensicode.github.io/minden24/
 
 ### To Do
 
-- [ ] credits button (game and end)
+- [X] credits button (game and end)
 - [ ] all options to make game == original
 - [ ] music selection dialog
 - [ ] title screen? or just popup how-to-play dialog?

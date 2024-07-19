@@ -8,19 +8,19 @@ import '../util/game_script.dart';
 import '../util/keys.dart';
 import 'game_dialog.dart';
 
-class HowToPlay extends GameScriptComponent {
+class Credits extends GameScriptComponent {
   static final _dialog_size = Vector2(640, 400);
 
   @override
   void onLoad() async {
-    var text = await game.assets.readFile('data/help.txt');
+    var text = await game.assets.readFile('data/credits.txt');
     text = text.split('\n').join('').replaceAll('---', '\n\n');
 
     final content = PositionComponent(
       size: Vector2(640, 480),
       children: [
         BitmapText(
-          text: 'How To Play',
+          text: 'Credits',
           font: menu_font,
           position: Vector2(_dialog_size.x / 2, 32),
           anchor: Anchor.center,

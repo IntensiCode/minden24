@@ -13,6 +13,7 @@ import '../util/messaging.dart';
 import '../util/shortcuts.dart';
 import 'board_stack_component.dart';
 import 'card_game.dart';
+import 'credits.dart';
 import 'end.dart';
 import 'game_messages.dart';
 import 'hot_to_play.dart';
@@ -108,8 +109,9 @@ class GameScreen extends PositionComponent with AutoDispose, HasAutoDisposeShort
     await add(_make_button('Try Again', 77, 1, '<A-t>', () => new_game_dialog.try_again()));
     await add(_make_button('New Game', 200, 1, '<A-n>', () => new_game_dialog.new_game()));
     await add(_make_button('How To Play', 322, 1, '<A-h>', () => add(HowToPlay())));
+    await add(_make_button('Credits', 468, 1, '<A-c>', () => add(Credits())));
 
-    if (dev) await add(_make_button('End', 422, 1, '<A-e>', () => add(End())));
+    if (dev) await add(_make_button('End', 750, 565, '<A-e>', () => add(End())));
 
     await add(VolumeComponent(
       bg_nine_patch: _button,
