@@ -52,8 +52,8 @@ abstract class StackComponent<T extends CardStack> extends PositionComponent wit
       if (it.not_in == _stack) return;
 
       final stacking = _stack.cards.length;
-      final size_x = active_cards.srcSize.x + stacking * x_spacing - x_spacing;
-      final size_y = active_cards.srcSize.y + stacking * y_spacing;
+      final size_x = card_width + stacking * x_spacing - x_spacing;
+      final size_y = card_height + stacking * y_spacing;
       if (it.at.x < position.x || it.at.x > position.x + size_x) return;
       if (it.at.y < position.y || it.at.y > position.y + size_y) return;
 

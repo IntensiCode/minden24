@@ -13,14 +13,14 @@ Playable version: https://intensicode.github.io/minden24/
 
 ### To Do
 
-- [ ] fix drag target size for card set size
 - [ ] title screen? or just popup how-to-play dialog?
 - [ ] show how-to-play dialog initially if no title screen
 
-- [X] credits button (game and end)
-- [X] help button for showing how-to-play dialog
-- [X] end screen with poem and picture (original?)
-- [X] music selection dialog
-- [X] BUG fix drag to match card set
 - [X] BUG fix card overlay to match card set
+- [X] BUG fix drag target size for card set size
+- [X] BUG fix drag to match card set
 - [X] all options to make game == original
+- [X] credits button (game and end)
+- [X] end screen with poem and picture (original?)
+- [X] help button for showing how-to-play dialog
+- [X] music selection dialog
