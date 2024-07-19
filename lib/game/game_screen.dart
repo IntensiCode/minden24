@@ -9,50 +9,17 @@ import '../util/auto_dispose.dart';
 import '../util/bitmap_button.dart';
 import '../util/fonts.dart';
 import '../util/functions.dart';
-import '../util/messaging.dart';
 import '../util/shortcuts.dart';
+import 'auto_solver.dart';
 import 'board_stack_component.dart';
 import 'card_game.dart';
 import 'credits.dart';
 import 'end.dart';
-import 'game_messages.dart';
 import 'hot_to_play.dart';
 import 'minden_game.dart';
 import 'new_game_dialog.dart';
 import 'soundboard.dart';
 import 'stack_component.dart';
-
-class AutoSolver extends Component with AutoDispose {
-  bool active = false;
-  Card? auto_solve;
-
-  @override
-  void onLoad() {
-    super.onLoad();
-    minden_game.on_auto_solve = () {
-      if (!minden_game.settings.auto_finish) return;
-      minden_game.game_locked = true;
-      active = true;
-    };
-  }
-
-  @override
-  void update(double dt) {
-    super.update(dt);
-    if (!active) return;
-
-    final next = minden_game.next_auto_solve;
-    if (identical(auto_solve, next)) return;
-
-    auto_solve = next;
-    if (next == null) {
-      minden_game.game_locked = false;
-      active = false;
-    } else {
-      sendMessage(AnimateAutoSolve(next));
-    }
-  }
-}
 
 class GameScreen extends PositionComponent with AutoDispose, HasAutoDisposeShortcuts {
   GameScreen() : super(size: game_size);
