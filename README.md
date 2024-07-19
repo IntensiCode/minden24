@@ -6,9 +6,11 @@ Playable version: https://intensicode.github.io/minden24/
 
 ### To Do
 
-* end screen with poem and picture (original?)
-* music selection dialog
-* help button for showing how-to-play dialog
-* title screen? or just popup how-to-play dialog?
-* show how-to-play dialog initially if no title screen
-* animate undo somehow?
+- [ ] credits button (game and end)
+- [ ] all options to make game == original
+- [ ] music selection dialog
+- [ ] title screen? or just popup how-to-play dialog?
+- [ ] show how-to-play dialog initially if no title screen
+
+- [X] help button for showing how-to-play dialog
+- [X] end screen with poem and picture (original?)

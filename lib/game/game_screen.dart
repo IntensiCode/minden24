@@ -13,7 +13,7 @@ import '../util/messaging.dart';
 import '../util/shortcuts.dart';
 import 'board_stack_component.dart';
 import 'card_game.dart';
-import 'draggable_card.dart';
+import 'end.dart';
 import 'game_messages.dart';
 import 'hot_to_play.dart';
 import 'minden_game.dart';
@@ -60,6 +60,8 @@ class GameScreen extends PositionComponent with AutoDispose, HasAutoDisposeShort
 
   @override
   onLoad() async {
+    minden_game.on_game_complete = () => add(End());
+
     try {
       await minden_game.load();
       logInfo('game state restored');
@@ -106,6 +108,8 @@ class GameScreen extends PositionComponent with AutoDispose, HasAutoDisposeShort
     await add(_make_button('Try Again', 77, 1, '<A-t>', () => new_game_dialog.try_again()));
     await add(_make_button('New Game', 200, 1, '<A-n>', () => new_game_dialog.new_game()));
     await add(_make_button('How To Play', 322, 1, '<A-h>', () => add(HowToPlay())));
+
+    if (dev) await add(_make_button('End', 422, 1, '<A-e>', () => add(End())));
 
     await add(VolumeComponent(
       bg_nine_patch: _button,

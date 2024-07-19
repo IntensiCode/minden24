@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:dart_minilog/dart_minilog.dart';
 import 'package:flame_audio/flame_audio.dart';
 
-import '../core/core.dart';
 import 'soundboard.dart';
 
 class SoundboardImpl extends Soundboard {
@@ -66,7 +65,6 @@ class SoundboardImpl extends Soundboard {
 
     _max_sounds.removeWhere((it) => it.state != PlayerState.playing);
     if (_max_sounds.length > 10) {
-      if (dev) logWarn('sound killed - overload');
       final fifo = _max_sounds.removeAt(0);
       await fifo.stop();
     }

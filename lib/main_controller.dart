@@ -3,7 +3,6 @@ import 'package:dart_minilog/dart_minilog.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/foundation.dart';
 
-import 'core/core.dart';
 import 'core/screens.dart';
 import 'game/game_screen.dart';
 import 'util/extensions.dart';
@@ -18,9 +17,7 @@ class MainController extends World implements ScreenNavigation {
 
   @override
   void onMount() {
-    if (dev && !kIsWeb) {
-      showScreen(Screen.game);
-    } else if (kIsWeb) {
+    if (kIsWeb) {
       add(WebPlayScreen());
     } else {
       showScreen(Screen.game);

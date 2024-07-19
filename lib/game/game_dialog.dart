@@ -13,9 +13,10 @@ import '../util/keys.dart';
 import '../util/nine_patch_image.dart';
 
 class DialogKeys extends Component {
-  DialogKeys({required this.handlers, this.left, this.right, this.shortcuts = true});
+  DialogKeys({required this.handlers, this.tap_key, this.left, this.right, this.shortcuts = true});
 
   final Map<GameKey, Function> handlers;
+  final GameKey? tap_key;
   final String? left;
   final String? right;
   final bool shortcuts;
@@ -67,36 +68,42 @@ class GameDialog extends PositionComponent
     this.keys,
     Vector2? size,
     Color shadow = shadow,
+    this.background = true,
   }) : super(position: game_size / 2, anchor: Anchor.center) {
     this.size = size ?? content.size;
-    background = BackgroundCatcher(() => removeFromParent());
     priority = 100;
   }
 
   final PositionComponent content;
   final DialogKeys? keys;
-  late final Component background;
+  final bool background;
+
+  Component? _background;
 
   @override
   onLoad() async {
     super.onLoad();
 
     final bg = await image('button_plain.png');
-    parent!.add(background);
-    add(NinePatchComponent(image: bg, size: size));
+
+    if (background) {
+      parent!.add(_background = BackgroundCatcher(() => removeFromParent()));
+      add(NinePatchComponent(image: bg, size: size));
+    }
 
     add(content);
 
-    if (keys != null) add(keys!);
-
-    if (keys?.left != null) {
-      await add_button(bg, keys!.left!, 0, size.y, Anchor.topLeft, () => keys!.handle(SoftKey.left));
+    if (keys != null) {
+      add(keys!);
+      if (keys?.left != null) {
+        await add_button(bg, keys!.left!, 0, size.y, Anchor.topLeft, () => keys!.handle(SoftKey.left));
+      }
+      if (keys?.right != null) {
+        await add_button(bg, keys!.right!, size.x, size.y, Anchor.topRight, () => keys!.handle(SoftKey.right));
+      }
     }
-    if (keys?.right != null) {
-      await add_button(bg, keys!.right!, size.x, size.y, Anchor.topRight, () => keys!.handle(SoftKey.right));
-    }
 
-    for (final it in children.skip(1)) {
+    for (final it in children) {
       it.fadeInDeep();
     }
   }
@@ -104,6 +111,12 @@ class GameDialog extends PositionComponent
   @override
   void onRemove() {
     super.onRemove();
-    background.removeFromParent();
+    _background?.removeFromParent();
+  }
+
+  @override
+  void onTapUp(TapUpEvent event) {
+    super.onTapUp(event);
+    if (keys?.tap_key != null) keys!.handlers[keys!.tap_key!]!();
   }
 }

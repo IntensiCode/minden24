@@ -1,9 +1,10 @@
 import 'package:flame/cache.dart';
 import 'package:flame/game.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-bool debug = false;
-bool dev = false;
+bool debug = kDebugMode && !kIsWeb;
+bool dev = kDebugMode;
 
 const tps = 60;
 

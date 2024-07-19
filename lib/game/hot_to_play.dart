@@ -36,14 +36,13 @@ class HowToPlay extends GameScriptComponent {
       ],
     );
 
-    GameDialog? dialog;
-    await add(dialog = GameDialog(
+    await add(GameDialog(
       size: _dialog_size,
       content: content,
       keys: DialogKeys(
         handlers: {
-          GameKey.soft1: () => dialog?.removeFromParent(),
-          GameKey.soft2: () => dialog?.removeFromParent(),
+          GameKey.soft1: () => removeFromParent(),
+          GameKey.soft2: () => removeFromParent(),
         },
         left: 'Ok',
       ),

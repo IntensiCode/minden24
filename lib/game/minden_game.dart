@@ -400,7 +400,8 @@ class MindenGame {
   late final List<AceStack> ace_stacks = List.generate(12, (_) => AceStack(), growable: false);
   late final List<PlayStack> play_stacks = List.generate(8, (_) => PlayStack(), growable: false);
 
-  void Function() on_auto_solve = () {};
+  Hook on_game_complete = () {};
+  Hook on_auto_solve = () {};
 
   bool get is_solved => all_remaining_cards.isEmpty;
 
@@ -410,7 +411,7 @@ class MindenGame {
     final all = <Card>[];
     all.addAll(board_stack.all_remaining_cards);
     all.addAll(play_stacks.expand((it) => it.cards));
-    all.sort((a,b) => a.value.index - b.value.index);
+    all.sort((a, b) => a.value.index - b.value.index);
     return all;
   }
 
@@ -578,27 +579,33 @@ class MindenGame {
   GameData? _pending_undo;
 
   Future save() async {
-    if (game_locked) return;
+    if (!game_locked) {
+      if (_pending_undo != null) {
+        _undo.add(_pending_undo!);
+        _pending_undo = null;
+      }
 
-    if (_pending_undo != null) {
-      _undo.add(_pending_undo!);
-      _pending_undo = null;
+      logInfo('save game state');
+      final data = save_state();
+      await save_data('minden_game', data);
+
+      _pending_undo = data;
     }
-
-    logInfo('save game state');
-    final data = save_state();
-    await save_data('minden_game', data);
-
-    _pending_undo = data;
-
-    if (board_stack._layers.length == 1) {
-      on_auto_solve();
-    }
+    _check_end_conditions();
   }
 
   Future load() async {
     final data = await load_data('minden_game');
     load_state(data!);
+    _check_end_conditions();
+  }
+
+  void _check_end_conditions() {
+    if (next_auto_solve == null) {
+      on_game_complete();
+    } else if (board_stack._layers.length == 1) {
+      on_auto_solve();
+    }
   }
 
   GameData save_state() => {
