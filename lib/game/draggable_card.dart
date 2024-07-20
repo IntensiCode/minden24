@@ -63,7 +63,11 @@ class DraggableCardComponent extends SpriteComponent with AutoDispose, TapCallba
 
     final AutoPlacement? auto_place;
     if (batch.length > 1) {
-      auto_place = minden_game.find_play_stack_for(batch: batch, from: container);
+      if (batch_drag) {
+        auto_place = minden_game.find_play_stack_for(batch: batch, from: container);
+      } else {
+        return;
+      }
     } else {
       auto_place = minden_game.find_auto_placement_for(card: batch.single, from: container);
     }

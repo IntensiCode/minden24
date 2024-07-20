@@ -16,6 +16,7 @@ Playable version: https://intensicode.github.io/minden24/
 - [ ] title screen? or just popup how-to-play dialog?
 - [ ] show how-to-play dialog initially if no title screen
 
+- [X] BUG batch drag option should affect batch tap, too
 - [X] BUG fix card overlay to match card set
 - [X] BUG fix drag target size for card set size
 - [X] BUG fix drag to match card set
