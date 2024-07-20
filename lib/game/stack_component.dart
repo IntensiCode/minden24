@@ -67,6 +67,8 @@ abstract class StackComponent<T extends CardStack> extends PositionComponent wit
 
   // TODO optimize recreate + snapshot
 
+  SpriteComponent? _placeholder;
+
   void _recreate() {
     parent!.removeAll(_mine);
     _mine.clear();
@@ -76,8 +78,8 @@ abstract class StackComponent<T extends CardStack> extends PositionComponent wit
       card_height / active_cards.getSpriteById(0).srcSize.y,
     );
 
-    removeAll(children);
-    add(SpriteComponent(sprite: placeholder, scale: scale));
+    _placeholder?.removeFromParent();
+    add(_placeholder = SpriteComponent(sprite: placeholder, scale: scale));
 
     for (final (index, card) in _stack.cards.indexed) {
       final position = Vector2(index * x_spacing, index * y_spacing);
