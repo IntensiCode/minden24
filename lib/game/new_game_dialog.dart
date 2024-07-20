@@ -173,6 +173,7 @@ class NewGameDialog extends Component {
           tap_to_auto_place: false,
         );
         sendMessage(_Refresh());
+        menu.preselectEntry(_new_settings.difficulty);
       },
     )..position.setValues(_dialog_size.x / 4 + 10, 240));
 
