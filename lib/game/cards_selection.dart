@@ -25,6 +25,7 @@ enum CardSet {
   cards_unknown(corner_radius: 2),
   cards_fantasy(corner_radius: 2),
   cards_glennorous(corner_radius: 2),
+  cards_poker(corner_radius: 2),
   ;
 
   final double corner_radius;
@@ -33,7 +34,7 @@ enum CardSet {
 }
 
 class CardsSelection extends Component with AutoDispose {
-  static final _dialog_size = Vector2(320, 256);
+  static final _dialog_size = Vector2(320, 320);
 
   late final SpriteSheet _menu_entry;
 
@@ -63,6 +64,7 @@ class CardsSelection extends Component with AutoDispose {
       CardSet.cards_unknown => await sheetIWH('$which.png', 62, 84, spacing: 0, margin: 0),
       CardSet.cards_fantasy => await sheetIWH('$which.png', 96, 144, spacing: 0, margin: 0),
       CardSet.cards_glennorous => await sheetIWH('$which.png', 36, 54, spacing: 0, margin: 0),
+      CardSet.cards_poker => await sheetIWH('$which.png', 49, 65, spacing: 0, margin: 0),
     };
     sendMessage(RefreshCards());
   }
@@ -102,5 +104,6 @@ class CardsSelection extends Component with AutoDispose {
         ..addEntry(CardSet.cards_unknown, 'Unknown Cards')
         ..addEntry(CardSet.cards_fantasy, 'Fantasy Cards')
         ..addEntry(CardSet.cards_glennorous, 'Glennorous Cards')
+        ..addEntry(CardSet.cards_poker, 'Poker Cards')
         ..preselectEntry(active_card_set);
 }
