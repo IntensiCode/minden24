@@ -47,6 +47,7 @@ class MusicSelection extends Component with AutoDispose {
 
   void _play(String which) {
     now_playing = MusicTrack.values.firstWhere((it) => it.name == which);
+    soundboard.fade_out_music();
     soundboard.play_music('music/$which.ogg');
     save_data('music_selection', {'music': which});
   }
