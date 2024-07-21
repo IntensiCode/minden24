@@ -14,7 +14,13 @@ class SoundboardImpl extends Soundboard {
   double? get active_music_volume => FlameAudio.bgm.audioPlayer.volume;
 
   @override
-  set active_music_volume(double? it) => FlameAudio.bgm.audioPlayer.setVolume(it ?? music);
+  set active_music_volume(double? it) {
+    final ap = FlameAudio.bgm.audioPlayer;
+    if (ap.source == null || !FlameAudio.bgm.isPlaying) return;
+    ap.setVolume(it ?? music);
+    // if (it == 0 && ap.state == PlayerState.playing) FlameAudio.bgm.pause();
+    // if (it > 0 && ap.state != PlayerState.playing) FlameAudio.bgm.resume();
+  }
 
   @override
   Future do_init_and_preload() async {
@@ -42,11 +48,7 @@ class SoundboardImpl extends Soundboard {
   @override
   void do_update_volume() {
     logInfo('update volume $music');
-    final ap = FlameAudio.bgm.audioPlayer;
-    if (ap.source == null || !FlameAudio.bgm.isPlaying) return;
-    ap.setVolume(music);
-    // if (music == 0 && ap.state == PlayerState.playing) FlameAudio.bgm.pause();
-    // if (music > 0 && ap.state != PlayerState.playing) FlameAudio.bgm.resume();
+    active_music_volume = music;
   }
 
   @override
@@ -84,13 +86,14 @@ class SoundboardImpl extends Soundboard {
   @override
   Future do_play_music(String filename) async {
     logInfo('playing music via audio_players');
-    if (FlameAudio.bgm.isPlaying) {
-      logInfo('stopping active bgm');
-      await FlameAudio.bgm.stop();
-    }
+    do_stop_active_music();
     await FlameAudio.bgm.play(filename, volume: music);
   }
 
   @override
-  void do_stop_active_music() {} // FlameAudio.bgm.dispose();
+  void do_stop_active_music() async {
+    if (!FlameAudio.bgm.isPlaying) return;
+    logInfo('stopping active bgm');
+    await FlameAudio.bgm.stop();
+  }
 }
