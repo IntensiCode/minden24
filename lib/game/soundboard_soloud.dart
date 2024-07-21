@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:dart_minilog/dart_minilog.dart';
 import 'package:flutter_soloud/flutter_soloud.dart';
 
+import '../core/core.dart';
 import 'soundboard.dart';
 
 class SoundboardImpl extends Soundboard {
@@ -13,7 +14,6 @@ class SoundboardImpl extends Soundboard {
 
   final _sounds = <Sound, AudioSource>{};
 
-  // final _max_sounds = <SoundHandle>[];
   final _last_time = <AudioSource, int>{};
 
   @override
@@ -80,15 +80,6 @@ class SoundboardImpl extends Soundboard {
     if (now < last_played_at + 100) return;
     _last_time[it] = now;
 
-    // _max_sounds.removeWhere((it) => it.state != PlayerState.playing);
-    // if (_max_sounds.length > 10) {
-    //   final fifo = _max_sounds.removeAt(0);
-    //   await fifo.stop();
-    // }
-
-    // if (it.state != PlayerState.stopped) await it.stop();
-    // await it.setVolume((volume_factor * super.sound).clamp(0, 1));
-    // await it.resume();
     await soloud.play(it, volume: (volume_factor * super.sound).clamp(0, 1));
   }
 
@@ -99,16 +90,31 @@ class SoundboardImpl extends Soundboard {
   }
 
   @override
-  Future do_play_music(String filename) async {
+  Future do_play_music(String filename, {bool loop = true, Hook? on_end}) async {
+    try {
+      await _do_play_music(filename, loop: loop, on_end: on_end);
+    } catch (e) {
+      logError('failed playing $filename: $e');
+      await Future.delayed(const Duration(seconds: 1));
+      await _do_play_music(filename, loop: loop, on_end: on_end);
+    }
+  }
+
+  Future _do_play_music(String filename, {bool loop = true, Hook? on_end}) async {
     do_stop_active_music();
 
     // because of the async-ness, double check no other music started by now:
     if (_active_music != null) return;
 
+    await Future.delayed(const Duration(milliseconds: 100));
+
     final source = await soloud.loadAsset('assets/audio/$filename');
-    _active_music = (source, await soloud.play(source, volume: music, looping: true));
+    final handle = await soloud.play(source, volume: music, looping: loop);
+    _active_music = (source, handle);
 
     logInfo('playing music via soloud: $filename');
+
+    if (on_end != null) source.allInstancesFinished.listen((_) => on_end());
   }
 
   @override

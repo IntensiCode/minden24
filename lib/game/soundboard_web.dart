@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:dart_minilog/dart_minilog.dart';
 import 'package:flame_audio/flame_audio.dart';
+import 'package:minden24/core/core.dart';
 
 import 'soundboard.dart';
 
@@ -83,16 +84,33 @@ class SoundboardImpl extends Soundboard {
     it.setReleaseMode(ReleaseMode.release);
   }
 
+  StreamSubscription? _on_end;
+
   @override
-  Future do_play_music(String filename) async {
-    logInfo('playing music via audio_players');
+  Future do_play_music(String filename, {bool loop = true, Hook? on_end}) async {
     do_stop_active_music();
+
+    logInfo('playing music via audio_players');
     await FlameAudio.bgm.play(filename, volume: music);
+
+    FlameAudio.bgm.audioPlayer.setReleaseMode(loop ? ReleaseMode.loop : ReleaseMode.release);
+
+    if (on_end != null || !loop) {
+      _on_end = FlameAudio.bgm.audioPlayer.onPlayerComplete.listen((_) {
+        logInfo('bgm complete');
+        if (!loop) do_stop_active_music();
+        if (on_end != null) on_end();
+      });
+    }
   }
 
   @override
   void do_stop_active_music() async {
+    _on_end?.cancel();
+    _on_end = null;
+
     if (!FlameAudio.bgm.isPlaying) return;
+
     logInfo('stopping active bgm');
     await FlameAudio.bgm.stop();
   }

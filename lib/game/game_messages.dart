@@ -35,4 +35,10 @@ class PickCards with Message {}
 
 class PickMusic with Message {}
 
+class PlayEndMusic with Message {
+  PlayEndMusic(this.when_done);
+
+  Hook when_done;
+}
+
 class RefreshCards with Message {}

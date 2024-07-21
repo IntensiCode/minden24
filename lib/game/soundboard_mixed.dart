@@ -8,6 +8,19 @@ import 'package:mp_audio_stream/mp_audio_stream.dart';
 import '../core/core.dart';
 import 'soundboard.dart';
 
+class _PlayState {
+  _PlayState(this.sample, {this.loop = false, this.paused = false, required this.volume});
+
+  final Float32List sample;
+  int sample_pos = 0;
+
+  bool loop;
+  bool paused;
+  Hook? on_end;
+
+  double volume;
+}
+
 class SoundboardImpl extends Soundboard {
   // raw sample data for mixing
   final _samples = <Sound, Float32List>{};
@@ -16,15 +29,18 @@ class SoundboardImpl extends Soundboard {
   AudioStream? _stream;
 
   // sample states for mixing into [_stream]
-  final _play_state = <PlayState>[];
+  final _play_state = <_PlayState>[];
 
-  PlayState? _active_music;
+  _PlayState? _active_music;
 
   @override
   double? get active_music_volume => _active_music?.volume;
 
   @override
-  set active_music_volume(double? it) => _active_music?.volume = it ?? music;
+  set active_music_volume(double? it) {
+    _active_music?.volume = it ?? music;
+    _active_music?.paused = _active_music?.volume == 0;
+  }
 
   @override
   Future do_init_and_preload() async {
@@ -63,13 +79,12 @@ class SoundboardImpl extends Soundboard {
   @override
   void do_update_volume() {
     logInfo('update volume $music');
-    _active_music?.volume = music;
-    _active_music?.paused = music == 0;
+    active_music_volume = music;
   }
 
   @override
   Future do_play(Sound sound, double volume_factor) async {
-    _play_state.add(PlayState(_samples[sound]!, volume: volume_factor * super.sound));
+    _play_state.add(_PlayState(_samples[sound]!, volume: volume_factor * super.sound));
   }
 
   @override
@@ -78,18 +93,19 @@ class SoundboardImpl extends Soundboard {
 
     logVerbose('play sample $filename');
     final data = await _make_sample('audio/$filename.raw');
-    _play_state.add(PlayState(data, volume: volume_factor * sound));
+    _play_state.add(_PlayState(data, volume: volume_factor * sound));
   }
 
   @override
-  Future do_play_music(String filename) async {
+  Future do_play_music(String filename, {bool loop = true, Hook? on_end}) async {
     logInfo('play music via mp_audio_stream');
 
     do_stop_active_music();
 
     final raw_name = '${filename.replaceFirst('.ogg', '').replaceFirst('.mp3', '')}.raw';
     final data = await _make_sample('audio/$raw_name');
-    _active_music = PlayState(data, loop: true, volume: music);
+    _active_music = _PlayState(data, loop: loop, volume: music);
+    _active_music!.on_end = on_end;
     _play_state.add(_active_music!);
   }
 
@@ -134,6 +150,7 @@ class SoundboardImpl extends Soundboard {
           mixed[at] += data[i] * it.volume;
         }
         if (end == data.length) {
+          it.on_end?.call();
           it.sample_pos = it.loop ? 0 : -1;
         } else {
           it.sample_pos = end;

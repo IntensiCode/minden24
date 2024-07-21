@@ -1,23 +1,27 @@
 import 'dart:math';
 
+import 'package:dart_minilog/dart_minilog.dart';
 import 'package:flame/components.dart';
 
 import '../core/core.dart';
 import '../util/extensions.dart';
 import '../util/game_script.dart';
 import '../util/keys.dart';
+import '../util/messaging.dart';
 import 'game_dialog.dart';
-import 'soundboard.dart';
+import 'game_messages.dart';
 
 class End extends GameScriptComponent {
   static final _dialog_size = game_size;
 
   @override
   void onLoad() async {
-    final music_pick = 1 + Random(DateTime.timestamp().millisecondsSinceEpoch).nextInt(4);
-
-    soundboard.fade_out_music();
-    soundboard.play_music('music/end$music_pick.ogg');
+    sendMessage(PlayEndMusic(() {
+      logInfo('end music done');
+      if (isMounted && !isRemoving && !isRemoved) {
+        removeFromParent();
+      }
+    }));
 
     final pick = 1 + Random(DateTime.timestamp().millisecondsSinceEpoch).nextInt(3);
     await add(GameDialog(

@@ -12,7 +12,6 @@ import 'soundboard_soloud.dart' if (dart.library.html) 'soundboard_web.dart';
 enum Sound {
   cannot_do,
   card_placed,
-  // game_complete,
 }
 
 final soundboard = SoundboardImpl();
@@ -25,18 +24,6 @@ enum AudioMode {
   ;
 
   static AudioMode from_name(String name) => AudioMode.values.firstWhere((it) => it.name == name);
-}
-
-class PlayState {
-  PlayState(this.sample, {this.loop = false, this.paused = false, required this.volume});
-
-  final Float32List sample;
-  int sample_pos = 0;
-
-  bool loop = false;
-  bool paused = false;
-
-  double volume;
 }
 
 abstract class Soundboard extends Component {
@@ -124,7 +111,7 @@ abstract class Soundboard extends Component {
   final _triggered = <Sound>{};
 
   String? active_music_name;
-  String? pending_music;
+  (String, bool, Hook?)? pending_music;
   double? fade_out_volume;
 
   @protected
@@ -145,7 +132,7 @@ abstract class Soundboard extends Component {
   Future do_play_one_shot_sample(String filename, double volume_factor);
 
   @protected
-  Future do_play_music(String filename);
+  Future do_play_music(String filename, {bool loop = true, Hook? on_end});
 
   @protected
   void do_stop_active_music();
@@ -176,22 +163,23 @@ abstract class Soundboard extends Component {
     await do_play_one_shot_sample(filename, volume_factor);
   }
 
-  Future play_music(String filename) async {
+  Future play_music(String filename, {bool loop = true, Hook? on_end}) async {
     // TODO check is_playing_music, too?
-    if (active_music_name == filename) {
-      logInfo('music already playing: $filename');
-    } else if (fade_out_volume != null) {
+    if (fade_out_volume != null) {
       logInfo('schedule music $filename');
-      pending_music = filename;
+      pending_music = (filename, loop, on_end);
+    } else if (active_music_name == filename) {
+      logInfo('music already playing: $filename');
     } else {
-      logInfo('play music $filename');
+      logInfo('play music $filename loop=$loop');
       do_stop_active_music();
       active_music_name = filename;
-      await do_play_music(filename);
+      await do_play_music(filename, loop: loop, on_end: on_end);
     }
   }
 
   void stop_active_music() {
+    logInfo('stop active music $active_music_name');
     fade_out_volume = null;
     active_music_name = null;
     do_stop_active_music();
@@ -230,9 +218,10 @@ abstract class Soundboard extends Component {
     if (fov <= 0) {
       stop_active_music();
       fade_out_volume = null;
-      if (pending_music != null) {
-        play_music(pending_music!);
+      final pending = pending_music;
+      if (pending != null) {
         pending_music = null;
+        play_music(pending.$1, loop: pending.$2, on_end: pending.$3);
       }
     } else {
       active_music_volume = fov;
